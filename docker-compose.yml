@@ -1,0 +1,79 @@
+version: "3.3"
+
+services:
+
+  api:
+    build:
+      context: .
+    image: moleculer-demo
+    env_file: .env
+    environment:
+      SERVICES: api
+      PORT: 3000
+    ports:
+      - "${PORT}:${PORT}"
+    depends_on:
+      - nats
+      - db
+    networks:
+      - internal
+        
+  db:
+    build:
+      context: .
+    image: moleculer-demo
+    env_file: .env
+    environment:
+      SERVICES: db
+    depends_on:
+      - nats
+      - database
+    networks:
+      - internal
+        
+  auth:
+    build:
+      context: .
+    image: moleculer-demo
+    env_file: .env
+    environment:
+      SERVICES: auth
+    depends_on:
+      - nats
+      - database
+    networks:
+      - internal
+        
+  date:
+    build:
+      context: .
+    image: moleculer-demo
+    env_file: .env
+    environment:
+      SERVICES: date
+    depends_on:
+      - nats
+      - database
+    networks:
+      - internal
+
+  nats:
+    image: nats:2
+    networks:
+      - internal
+
+  database:
+    image: postgres:13
+    env_file: .env
+    ports:
+      - "${POSTGRES_PORT_HOST}:${POSTGRES_PORT_CONTAINER}"
+    volumes:
+      - data:/var/lib/postgresql/data
+    networks:
+      - internal
+
+networks:
+  internal:
+
+volumes:
+  data:
